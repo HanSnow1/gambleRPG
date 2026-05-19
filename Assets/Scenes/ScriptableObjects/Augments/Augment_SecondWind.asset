@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1b2c3d4e5f6478990a1b2c3d4e5f603, type: 3}
+  m_Name: Augment_SecondWind
+  m_EditorClassIdentifier: Assembly-CSharp::AugmentDefinition
+  augmentId: aug_second_wind
+  displayName: Second Wind
+  shortDescription: Once per run — negate a lethal hit and heal 30% max HP.
+  levelDescriptions:
+  - 1 charge — lethal damage ignored, heal 30% max HP.
+  - 2 charges — same heal per trigger.
+  - ''
+  tier: 2
+  alsoOfferInPrismaticPool: 0
+  maxLevel: 2
+  removeFromPoolAtMaxLevel: 1
+  effectType: 4
+  valuesPerLevel:
+  - 1
+  - 2
+  secondaryValuesPerLevel:
+  - 30
+  - 30

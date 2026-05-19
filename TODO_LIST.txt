@@ -116,7 +116,8 @@ C — 런 & 맵 & 유물 (이다호) — 2일차
   최소 (Must):
     [ ] A: main에 최신 combat/preview push
     [ ] B: 증강 3종 + 3택1 UI가 Scene에서 한 번이라도 뜸
-    [ ] C: Start Run → 보스 프리뷰 → START FIGHT → 전투 진입
+    [x] C: Start Run → 보스 프리뷰 → START FIGHT → 전투 진입 (GameFlowController + RunManager)
+  [x] 통합: Start Run → 증강 3택1 → 보스 프리뷰 → 전투
 
   이상적 (Nice):
     [ ] 전투 승리 후 증강 팝업까지 이어짐
@@ -136,6 +137,77 @@ C — 런 & 맵 & 유물 (이다호) — 2일차
   Docs/COMBAT_STEP1_A.md, BOSS_STEP3_A.md, BOSS_STEP4_A.md, BOSS_STEP5_A.md
   Docs/combat_balance.md
   TEAM_ROLES.txt
+
+================================================================================
+증강 카드 기획 v1 — 사용자 지정 7종 (B 구현 / C 유물 연동)
+================================================================================
+규칙
+  +     = 레벨업 가능 횟수 (Lv1 시작). +만 있으면 Lv2 후 풀에서 제외
+  ++    = Lv3까지
+  +++   = Lv3까지 (프로젝트 상한 Lv3)
+  [실]  = Silver   [골] = Gold   [플] = Prismatic
+  에셋  = Assets/Scenes/ScriptableObjects/Augments/
+  수치표 = Docs/augment_balance.md
+
+--- 데이터 (코드) ---
+  [x] AugmentTier.cs / AugmentEffectType.cs / AugmentDefinition.cs
+  [x] 증강 ScriptableObject 7개 (아래 ID)
+  [ ] PlayerAugmentState + AugmentSelector + AugmentPickUI
+  [ ] AugmentCombatModifiers → 전투/런 연동
+
+--- #01 Gilded Mirror (거울의 도박) ---
+  등급: [골]  (프리즘 풀에도 노출 가능)  |  업그레이드: +  (max Lv2)
+  효과: 보유 유물(아이템) 중 랜덤 1개 수치(숫자) 2배 (+/- 부호 유지)
+  조건: 유물 0개 → 랜덤 커먼 유물 1개 지급
+  에셋: Augment_GildedMirror.asset  (aug_gilded_mirror)
+  [ ] C: RelicDefinition + 인벤토리 API
+  [ ] B: 랜덤 슬롯 선택 + 수치 2배 적용
+
+--- #02 Anchor Point (층의 닻) ---
+  등급: [실] 또는 [골]  |  업그레이드: +++  (max Lv3)
+  효과: 해당 층 한정 최대 체력 +30% / +40% / +50% (재선택마다 +10%p)
+  에셋: Augment_AnchorPoint.asset  (aug_anchor_point)
+  [ ] C: RunState.currentFloor + 층 입장 시 maxHp 재계산
+  [ ] B: 층 이탈 시 버프 제거
+
+--- #03 Double Down (올인) ---
+  등급: [골]  |  업그레이드: +++  (max Lv3)
+  효과: 도박(배팅) 시 30→40→50% 확률로 주는 피해 OR 받는 피해 2배
+  부가: 레벨당 도박 가중치 +10%p (secondaryValuesPerLevel)
+  에셋: Augment_DoubleDown.asset  (aug_double_down)
+  [ ] A/B: CombatUI.DoBet / BossGambleResolvers 훅
+
+--- #04 Crown Upgrade (왕관 승급) ---
+  등급: [실] 또는 [골]  |  업그레이드: +  (max Lv2)
+  효과: 다음 증강 3택1이 1단계 상위 등급 (Silver→Gold→Prismatic)
+  Lv2: 다음 2회 적용
+  에셋: Augment_CrownUpgrade.asset  (aug_crown_upgrade)
+  [ ] B: AugmentSelector tier bias 소모 플래그
+
+--- #05 Second Wind (두 번째 숨) ---
+  등급: [플]  |  업그레이드: +  (max Lv2)
+  효과: 사망 방지 1→2회 — 치명 피해 무효 + 최대 체력 30% 회복
+  에셋: Augment_SecondWind.asset  (aug_second_wind)
+  [ ] C: RunState lethal guard
+  [ ] B/A: 전투 피해 적용 직전 체크
+
+--- #06 Last Chip (마지막 칩) ---
+  등급: [골]  |  업그레이드: +  (max Lv2)
+  효과: 사망 방지 1→2회 — 치명 피해 시 체력 1로 생존 (회복 없음)
+  에셋: Augment_LastChip.asset  (aug_last_chip)
+  [ ] C: RunState lethal guard (Second Wind와 충돌 규칙 정하기)
+
+--- #07 Loaded Dice (속임수 주사위) ---
+  등급: [골]  |  업그레이드: +++  (max Lv3)
+  효과: 30% 확률로 주는 피해 +15% / +22% / +30%
+  에셋: Augment_LoadedDice.asset  (aug_loaded_dice)
+  [ ] B: AugmentCombatModifiers bonus damage roll
+
+--- B 2일차 체크 (이 7종 기준) ---
+  [ ] Unity에서 Augments 폴더 7 에셋 Inspector 확인
+  [ ] AugmentPickUI에 7종 중 3장 랜덤 노출 테스트
+  [ ] 같은 카드 재선택 시 levelDescriptions / valuesPerLevel 반영
+  [ ] maxLevel 도달 카드는 removeFromPoolAtMaxLevel 로 풀 제외
 
 ================================================================================
 끝

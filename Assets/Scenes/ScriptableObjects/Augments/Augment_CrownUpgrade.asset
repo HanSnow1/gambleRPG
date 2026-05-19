@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1b2c3d4e5f6478990a1b2c3d4e5f603, type: 3}
+  m_Name: Augment_CrownUpgrade
+  m_EditorClassIdentifier: Assembly-CSharp::AugmentDefinition
+  augmentId: aug_crown_upgrade
+  displayName: Crown Upgrade
+  shortDescription: Your next augment draft is one tier higher (Silver→Gold→Prismatic).
+  levelDescriptions:
+  - Next augment pick is upgraded by 1 tier.
+  - Next 2 augment picks are each upgraded by 1 tier.
+  - ''
+  tier: 0
+  alsoOfferInPrismaticPool: 0
+  maxLevel: 2
+  removeFromPoolAtMaxLevel: 1
+  effectType: 3
+  valuesPerLevel:
+  - 1
+  - 2
+  secondaryValuesPerLevel: []

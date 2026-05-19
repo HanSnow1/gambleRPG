@@ -3,7 +3,8 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Role C: Title -> Boss Preview (A's UI) -> Combat / Map.
+/// Role C: Title -> (opening augment) -> Boss Preview -> Combat.
+/// Integrates B's AugmentPickUI after Start Run.
 /// </summary>
 [DefaultExecutionOrder(-150)]
 public class GameFlowController : MonoBehaviour
@@ -11,6 +12,10 @@ public class GameFlowController : MonoBehaviour
   [Header("References")]
   [SerializeField] private RunManager runManager;
   [SerializeField] private BossPreviewUI bossPreviewUI;
+  [SerializeField] private AugmentPickUI augmentPickUI;
+
+  [Header("Flow")]
+  [SerializeField] private bool requireOpeningAugment = true;
 
   [Header("Title (auto-created if empty)")]
   [SerializeField] private GameObject titlePanel;
@@ -40,6 +45,7 @@ public class GameFlowController : MonoBehaviour
     if (diceBoss != null && cardBoss != null)
       runManager.SetBossPool(diceBoss, cardBoss);
 
+    EnsureAugmentServices();
     EnsureTitlePanel();
     ApplyPhase(RunPhase.Title);
   }
@@ -65,12 +71,59 @@ public class GameFlowController : MonoBehaviour
     runManager.StartNewRun();
   }
 
-  private void HandleRunStarted(RunState state) => ShowBossPreview(state);
+  private void EnsureAugmentServices()
+  {
+    if (augmentPickUI == null)
+      augmentPickUI = FindFirstObjectByType<AugmentPickUI>();
+
+    if (augmentPickUI == null)
+    {
+      var canvas = FindFirstObjectByType<Canvas>();
+      if (canvas != null)
+        augmentPickUI = canvas.gameObject.AddComponent<AugmentPickUI>();
+    }
+
+    if (runManager != null && runManager.GetComponent<PlayerAugmentState>() == null)
+      runManager.gameObject.AddComponent<PlayerAugmentState>();
+  }
+
+  private void HandleRunStarted(RunState state)
+  {
+    if (requireOpeningAugment && augmentPickUI != null)
+    {
+      runManager.SetPhase(RunPhase.AugmentPick);
+      if (titlePanel != null)
+        titlePanel.SetActive(false);
+      bossPreviewUI?.HidePreview();
+      augmentPickUI.ShowPick(OnOpeningAugmentPicked);
+      return;
+    }
+
+    ShowBossPreview(state);
+  }
+
+  private void OnOpeningAugmentPicked(AugmentDefinition picked)
+  {
+    if (picked != null)
+    {
+      PlayerAugmentState.Instance?.AddOrLevelUp(picked);
+      runManager.TryAddAugment(picked.augmentId);
+      Debug.Log($"Opening augment: {picked.displayName}");
+    }
+
+    runManager.SetPhase(RunPhase.BossPreview);
+  }
 
   private void HandleStateChanged(RunState state)
   {
     if (state.phase == RunPhase.Title)
       ApplyPhase(RunPhase.Title);
+    else if (state.phase == RunPhase.AugmentPick)
+    {
+      if (titlePanel != null)
+        titlePanel.SetActive(false);
+      bossPreviewUI?.HidePreview();
+    }
     else if (state.phase == RunPhase.BossPreview)
       ShowBossPreview(state);
     else if (state.phase == RunPhase.Combat || state.phase == RunPhase.BossCombat)

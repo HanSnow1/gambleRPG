@@ -72,7 +72,9 @@ public class BettingCombatSystem : MonoBehaviour
     return true;
   }
 
-  private void Log(string msg) => OnCombatLog?.Invoke(msg);
+  public void LogMessage(string msg) => OnCombatLog?.Invoke(msg);
+
+  private void Log(string msg) => LogMessage(msg);
 
   private void NotifyStateChanged() => OnCombatStateChanged?.Invoke();
 }

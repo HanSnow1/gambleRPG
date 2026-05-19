@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1b2c3d4e5f6478990a1b2c3d4e5f603, type: 3}
+  m_Name: Augment_LastChip
+  m_EditorClassIdentifier: Assembly-CSharp::AugmentDefinition
+  augmentId: aug_last_chip
+  displayName: Last Chip
+  shortDescription: Once per run — survive lethal damage at 1 HP (no heal).
+  levelDescriptions:
+  - 1 charge — drop to 1 HP instead of dying.
+  - 2 charges — same cheat-death rule.
+  - ''
+  tier: 1
+  alsoOfferInPrismaticPool: 0
+  maxLevel: 2
+  removeFromPoolAtMaxLevel: 1
+  effectType: 5
+  valuesPerLevel:
+  - 1
+  - 2
+  secondaryValuesPerLevel: []

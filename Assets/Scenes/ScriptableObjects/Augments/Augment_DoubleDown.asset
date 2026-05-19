@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1b2c3d4e5f6478990a1b2c3d4e5f603, type: 3}
+  m_Name: Augment_DoubleDown
+  m_EditorClassIdentifier: Assembly-CSharp::AugmentDefinition
+  augmentId: aug_double_down
+  displayName: Double Down
+  shortDescription: On gamble, chance to double damage dealt OR taken. Level ups raise odds.
+  levelDescriptions:
+  - 30% on gamble — deal or take damage is doubled.
+  - 40% trigger chance (+10% gamble weight vs Lv1).
+  - 50% trigger chance (+20% gamble weight vs Lv1).
+  tier: 1
+  alsoOfferInPrismaticPool: 0
+  maxLevel: 3
+  removeFromPoolAtMaxLevel: 1
+  effectType: 2
+  valuesPerLevel:
+  - 30
+  - 40
+  - 50
+  secondaryValuesPerLevel:
+  - 10
+  - 20
+  - 30

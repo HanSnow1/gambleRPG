@@ -695,6 +695,9 @@ GameObject:
   m_Component:
   - component: {fileID: 778277611}
   - component: {fileID: 778277612}
+  - component: {fileID: 778277613}
+  - component: {fileID: 778277614}
+  - component: {fileID: 778277615}
   m_Layer: 0
   m_Name: GameRoot
   m_TagString: Untagged
@@ -759,9 +762,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameFlowController
   runManager: {fileID: 778277613}
   bossPreviewUI: {fileID: 1314044427}
+  augmentPickUI: {fileID: 0}
+  requireOpeningAugment: 1
   titlePanel: {fileID: 0}
   diceBoss: {fileID: 11400000, guid: fedb8b23c1bd3dd4a84b275a5b8647d1, type: 2}
-  cardBoss: {fileID: 11400000, guid: c33e6e7ee897ff043bf8c2ee1ad2c9f5, type: 2}--- !u!1 &1041928045
+  cardBoss: {fileID: 11400000, guid: c33e6e7ee897ff043bf8c2ee1ad2c9f5, type: 2}
+--- !u!114 &778277615
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 778277610}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2020202020202020202020202020202, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerAugmentState
+  basePlayerMaxHp: 100
+--- !u!1 &1041928045
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

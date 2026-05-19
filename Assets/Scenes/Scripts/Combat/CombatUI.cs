@@ -46,6 +46,29 @@ public class CombatUI : MonoBehaviour
   {
     testBoss = boss;
     StartNewCombat();
+    PlayerAugmentState.Instance?.ApplyPreCombat(combat);
+    SyncRunHpFromCombat();
+    RefreshAll();
+    LogAugmentSummary();
+  }
+
+  private void SyncRunHpFromCombat()
+  {
+    if (combat == null || RunManager.Instance == null || !RunManager.Instance.State.isActive)
+      return;
+
+    RunManager.Instance.State.maxHp = combat.State.playerMaxHp;
+    RunManager.Instance.State.currentHp = combat.State.playerHp;
+  }
+
+  private void LogAugmentSummary()
+  {
+    if (PlayerAugmentState.Instance == null)
+      return;
+
+    string summary = PlayerAugmentState.Instance.GetSummaryLine();
+    if (!string.IsNullOrEmpty(summary))
+      OnLog(summary);
   }
 
   private void ResolveReferences()
