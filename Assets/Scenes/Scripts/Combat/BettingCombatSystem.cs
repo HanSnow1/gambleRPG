@@ -13,19 +13,33 @@ public class BettingCombatSystem : MonoBehaviour
     public bool IsEnemyDead => enemyHp <= 0;
   }
 
-  public CombatState State { get; } = new CombatState();
-  public event Action<string> OnCombatLog;
+  [SerializeField] private int startingEnemyHp = 80;
 
-  public void ResetCombat()
+  public BossDefinition CurrentBoss { get; private set; }
+  public CombatState State { get; } = new CombatState();
+  public bool IsCombatActive { get; private set; } = true;
+
+  public event Action<string> OnCombatLog;
+  public event Action OnCombatStateChanged;
+
+  public void ResetCombat(BossDefinition boss = null)
   {
+    CurrentBoss = boss;
     State.playerHp = State.playerMaxHp;
-    State.enemyHp = 80;
-    Log("Combat started!");
+    State.enemyHp = boss != null ? boss.maxHp : startingEnemyHp;
+    IsCombatActive = true;
+
+    if (boss != null)
+      Log($"Combat started vs {boss.displayName} ({boss.gambleType})");
+    else
+      Log("Combat started!");
+
+    NotifyStateChanged();
   }
 
   public bool ResolveBetTurn(int betHp, float successChance, int damageOnSuccess, int extraFailDamage)
   {
-    if (State.IsPlayerDead || State.IsEnemyDead)
+    if (!IsCombatActive)
     {
       Log("Combat already ended.");
       return false;
@@ -37,12 +51,12 @@ public class BettingCombatSystem : MonoBehaviour
     bool success = UnityEngine.Random.value <= successChance;
     if (success)
     {
-      State.enemyHp -= damageOnSuccess;
+      State.enemyHp = Mathf.Max(0, State.enemyHp - damageOnSuccess);
       Log($"Success! Bet {betHp}, damage {damageOnSuccess} (chance {successChance:P0})");
     }
     else
     {
-      State.playerHp -= extraFailDamage;
+      State.playerHp = Mathf.Max(0, State.playerHp - extraFailDamage);
       Log($"Fail! Bet {betHp} + extra {extraFailDamage} (chance {successChance:P0})");
     }
 
@@ -51,8 +65,14 @@ public class BettingCombatSystem : MonoBehaviour
     if (State.IsPlayerDead)
       Log("Game Over - HP 0");
 
+    if (State.IsPlayerDead || State.IsEnemyDead)
+      IsCombatActive = false;
+
+    NotifyStateChanged();
     return true;
   }
 
   private void Log(string msg) => OnCombatLog?.Invoke(msg);
+
+  private void NotifyStateChanged() => OnCombatStateChanged?.Invoke();
 }

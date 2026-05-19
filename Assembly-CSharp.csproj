@@ -50,6 +50,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Scenes\Scripts\Combat\CombatUI.cs" />
+    <Compile Include="Assets\Scenes\Scripts\Combat\CombatBetOption.cs" />
+    <Compile Include="Assets\Scenes\Scripts\Data\BossGambleType.cs" />
+    <Compile Include="Assets\Scenes\Scripts\Data\BossDefinition.cs" />
+    <Compile Include="Assets\Scenes\Scripts\Combat\BossGambleResolvers.cs" />
     <Compile Include="Assets\Scenes\Scripts\Combat\BettingCombatSystem.cs" />
   </ItemGroup>
   <ItemGroup>

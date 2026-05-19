@@ -1,2 +1,22 @@
 fileFormatVersion: 2
 guid: 42d685005f4c2784386ab03cf42cb587
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - combat: {instanceID: 0}
+  - testBoss: {instanceID: 0}
+  - bossRuleText: {instanceID: 0}
+  - playerHpText: {instanceID: 0}
+  - enemyHpText: {instanceID: 0}
+  - combatLogText: {instanceID: 0}
+  - statusText: {instanceID: 0}
+  - betSafeButton: {instanceID: 0}
+  - betRiskButton: {instanceID: 0}
+  - betAllInButton: {instanceID: 0}
+  - restartButton: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

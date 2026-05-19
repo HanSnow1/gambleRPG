@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f55b1d98b506bf47811170a3b36969f, type: 3}
+  m_Name: Boss_Dice
+  m_EditorClassIdentifier: Assembly-CSharp::BossDefinition
+  bossId: boss_dice
+  displayName: Dice Tyrant
+  weaknessHint: Compensating for the lows or aiming for the absolute peak makes the
+    Dice Tyrant easier to deal with.
+  riskPatternHintA: Steal a number and add another special symbol that applies a
+    penalty to that number.
+  riskPatternHintB: '**Special Pattern**
+
+    
+
+    Curses one of 1 or 6 and grants
+    special powers to each number.'
+  portrait: {fileID: 0}
+  gambleType: 0
+  maxHp: 120
+  baseAttack: 12
