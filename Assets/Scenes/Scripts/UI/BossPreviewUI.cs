@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Boss preview before combat. Role C can call ShowPreview(boss) from RunManager later.
+/// Boss preview before combat. Role C calls ShowPreview(boss) from RunManager / GameFlowController.
 /// </summary>
 [DefaultExecutionOrder(-50)]
 public class BossPreviewUI : MonoBehaviour
@@ -42,6 +42,9 @@ public class BossPreviewUI : MonoBehaviour
   [SerializeField] private BossDefinition diceBoss;
   [SerializeField] private BossDefinition cardBoss;
 
+  public BossDefinition DiceBoss => diceBoss;
+  public BossDefinition CardBoss => cardBoss;
+
   private BossDefinition _currentBoss;
   private readonly List<GameObject> _combatHudRoots = new();
 
@@ -60,6 +63,12 @@ public class BossPreviewUI : MonoBehaviour
   {
     WireButtons();
 
+    if (FindFirstObjectByType<GameFlowController>() != null)
+    {
+      HidePreview();
+      return;
+    }
+
     if (_currentBoss == null)
       _currentBoss = defaultBoss != null ? defaultBoss : diceBoss;
 
@@ -67,6 +76,13 @@ public class BossPreviewUI : MonoBehaviour
       ShowPreview(_currentBoss);
     else
       Debug.LogWarning("BossPreviewUI: Assign Default Boss or Dice/Card boss assets in Inspector.");
+  }
+
+  public void HidePreview()
+  {
+    if (previewPanel != null)
+      previewPanel.SetActive(false);
+    SetCombatHudVisible(false);
   }
 
   /// <summary>Called by RunManager (Role C) when the run's boss is chosen.</summary>
@@ -79,6 +95,7 @@ public class BossPreviewUI : MonoBehaviour
       previewPanel.SetActive(true);
 
     RefreshPreviewText();
+    WireButtons();
   }
 
   public void OnStartFight()
@@ -93,6 +110,13 @@ public class BossPreviewUI : MonoBehaviour
       previewPanel.SetActive(false);
 
     SetCombatHudVisible(true);
+
+    if (RunManager.Instance != null)
+    {
+      RunManager.Instance.State.assignedBoss = _currentBoss;
+      RunManager.Instance.SetPhase(RunPhase.Combat);
+      RunManager.Instance.AdvanceFloor();
+    }
 
     if (combatUI != null)
       combatUI.BeginCombat(_currentBoss);
@@ -142,6 +166,9 @@ public class BossPreviewUI : MonoBehaviour
 
   private void BindButton(Button button, string objectName, UnityEngine.Events.UnityAction action)
   {
+    if (button == null && previewPanel != null)
+      button = FindButtonInPanel(objectName);
+
     if (button == null)
       button = GameObject.Find(objectName)?.GetComponent<Button>();
 
@@ -316,7 +343,7 @@ public class BossPreviewUI : MonoBehaviour
 
     foreach (var go in _combatHudRoots)
     {
-      if (go != null)
+      if (go != null && go != previewPanel)
         go.SetActive(visible);
     }
   }
