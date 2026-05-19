@@ -2,10 +2,6 @@ using UnityEngine;
 
 public static class BossGambleResolvers
 {
-  // MVP tuning — adjust in playtest
-  private const float DiceSuccessBonus = 0.05f;
-  private const float CardSuccessBonus = 0.03f;
-
   public static float ModifySuccessChance(float baseChance, BossDefinition boss)
   {
     if (boss == null)
@@ -13,8 +9,8 @@ public static class BossGambleResolvers
 
     float bonus = boss.gambleType switch
     {
-      BossGambleType.Dice => DiceSuccessBonus,
-      BossGambleType.Card => CardSuccessBonus,
+      BossGambleType.Dice => CombatBalance.DiceBossSuccessBonus,
+      BossGambleType.Card => CombatBalance.CardBossSuccessBonus,
       _ => 0f
     };
 
@@ -28,8 +24,8 @@ public static class BossGambleResolvers
 
     return boss.gambleType switch
     {
-      BossGambleType.Dice => "Boss rule: Dice (+5% success)",
-      BossGambleType.Card => "Boss rule: Card (+3% success)",
+      BossGambleType.Dice => $"Boss rule: Dice (+{CombatBalance.DiceBossSuccessBonus:P0} success)",
+      BossGambleType.Card => $"Boss rule: Card (+{CombatBalance.CardBossSuccessBonus:P0} success)",
       _ => "Boss rule: Unknown"
     };
   }

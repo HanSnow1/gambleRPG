@@ -10,6 +10,11 @@ public struct CombatBetOption
   public int damageOnSuccess;
   public int extraFailDamage;
 
-  public string ButtonLabel =>
-    $"{label}\nBet {betHp} | {successChance:P0}\nDmg {damageOnSuccess} / Fail +{extraFailDamage}";
+  public string ButtonLabel => FormatButtonLabel(null);
+
+  public string FormatButtonLabel(BossDefinition boss)
+  {
+    float chance = BossGambleResolvers.ModifySuccessChance(successChance, boss);
+    return $"{label}\nBet {betHp} | {chance:P0}\nDmg {damageOnSuccess} / Fail +{extraFailDamage}";
+  }
 }

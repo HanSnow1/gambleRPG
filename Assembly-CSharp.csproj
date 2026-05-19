@@ -49,10 +49,12 @@
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\6000.4.7f1\Editor\Data\Tools\BuildPipeline\Unity.SourceGenerators\Unity.UIToolkit.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scenes\Scripts\UI\BossPreviewUI.cs" />
     <Compile Include="Assets\Scenes\Scripts\Combat\CombatUI.cs" />
     <Compile Include="Assets\Scenes\Scripts\Combat\CombatBetOption.cs" />
     <Compile Include="Assets\Scenes\Scripts\Data\BossGambleType.cs" />
     <Compile Include="Assets\Scenes\Scripts\Data\BossDefinition.cs" />
+    <Compile Include="Assets\Scenes\Scripts\Combat\CombatBalance.cs" />
     <Compile Include="Assets\Scenes\Scripts\Combat\BossGambleResolvers.cs" />
     <Compile Include="Assets\Scenes\Scripts\Combat\BettingCombatSystem.cs" />
   </ItemGroup>

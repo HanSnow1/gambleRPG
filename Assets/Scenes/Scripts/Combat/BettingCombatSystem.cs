@@ -17,7 +17,7 @@ public class BettingCombatSystem : MonoBehaviour
 
   public BossDefinition CurrentBoss { get; private set; }
   public CombatState State { get; } = new CombatState();
-  public bool IsCombatActive { get; private set; } = true;
+  public bool IsCombatActive { get; private set; }
 
   public event Action<string> OnCombatLog;
   public event Action OnCombatStateChanged;

@@ -18,32 +18,9 @@ public class CombatUI : MonoBehaviour
   [SerializeField] private TMP_Text statusText;
 
   [Header("Bet options (shown on buttons)")]
-  [SerializeField] private CombatBetOption safeOption = new()
-  {
-    label = "Safe",
-    betHp = 10,
-    successChance = 0.60f,
-    damageOnSuccess = 20,
-    extraFailDamage = 6
-  };
-
-  [SerializeField] private CombatBetOption riskOption = new()
-  {
-    label = "Risk",
-    betHp = 18,
-    successChance = 0.45f,
-    damageOnSuccess = 46,
-    extraFailDamage = 12
-  };
-
-  [SerializeField] private CombatBetOption allInOption = new()
-  {
-    label = "All-in",
-    betHp = 25,
-    successChance = 0.30f,
-    damageOnSuccess = 72,
-    extraFailDamage = 20
-  };
+  [SerializeField] private CombatBetOption safeOption = CombatBalance.Safe;
+  [SerializeField] private CombatBetOption riskOption = CombatBalance.Risk;
+  [SerializeField] private CombatBetOption allInOption = CombatBalance.AllIn;
 
   [Header("Buttons (optional — auto-find by name if empty)")]
   [SerializeField] private Button betSafeButton;
@@ -60,6 +37,14 @@ public class CombatUI : MonoBehaviour
     combat.OnCombatLog += OnLog;
     combat.OnCombatStateChanged += OnCombatStateChanged;
 
+    if (FindFirstObjectByType<BossPreviewUI>() == null)
+      StartNewCombat();
+  }
+
+  /// <summary>Starts combat after boss preview (Role A step 4). Role C calls via BossPreviewUI.</summary>
+  public void BeginCombat(BossDefinition boss)
+  {
+    testBoss = boss;
     StartNewCombat();
   }
 
@@ -85,8 +70,44 @@ public class CombatUI : MonoBehaviour
       Debug.LogWarning("CombatUI: Test Boss is empty. Drag Boss_Dice or Boss_Card into Combat UI → Test Boss, then save the scene (Ctrl+S).");
   }
 
-  private static TMP_Text FindTmp(string objectName) =>
-    GameObject.Find(objectName)?.GetComponent<TMP_Text>();
+  private TMP_Text FindTmp(string objectName)
+  {
+    var t = FindChildRecursive(transform, objectName);
+    return t != null ? t.GetComponent<TMP_Text>() : null;
+  }
+
+  private void ResolveButtons()
+  {
+    if (betSafeButton == null)
+      betSafeButton = FindButton("BetSmall");
+    if (betRiskButton == null)
+      betRiskButton = FindButton("BetMedium");
+    if (betAllInButton == null)
+      betAllInButton = FindButton("BetLarge");
+    if (restartButton == null)
+      restartButton = FindButton("RestartButton");
+  }
+
+  private Button FindButton(string objectName)
+  {
+    var t = FindChildRecursive(transform, objectName);
+    return t != null ? t.GetComponent<Button>() : null;
+  }
+
+  private static Transform FindChildRecursive(Transform root, string objectName)
+  {
+    if (root.name == objectName)
+      return root;
+
+    for (int i = 0; i < root.childCount; i++)
+    {
+      var found = FindChildRecursive(root.GetChild(i), objectName);
+      if (found != null)
+        return found;
+    }
+
+    return null;
+  }
 
   private void OnDestroy()
   {
@@ -157,6 +178,7 @@ public class CombatUI : MonoBehaviour
     RefreshHud();
     RefreshStatus();
     RefreshButtons();
+    ApplyButtonLabels();
   }
 
   private void RefreshHud()
@@ -191,6 +213,10 @@ public class CombatUI : MonoBehaviour
       else
         statusText.text = "FIGHT ENDED";
     }
+    else if (testBoss != null)
+    {
+      statusText.text = $"CHOOSE YOUR BET\n{BossGambleResolvers.GetRuleLabel(testBoss)}";
+    }
     else
     {
       statusText.text = "CHOOSE YOUR BET";
@@ -213,23 +239,11 @@ public class CombatUI : MonoBehaviour
       button.interactable = interactable;
   }
 
-  private void ResolveButtons()
-  {
-    if (betSafeButton == null)
-      betSafeButton = GameObject.Find("BetSmall")?.GetComponent<Button>();
-    if (betRiskButton == null)
-      betRiskButton = GameObject.Find("BetMedium")?.GetComponent<Button>();
-    if (betAllInButton == null)
-      betAllInButton = GameObject.Find("BetLarge")?.GetComponent<Button>();
-    if (restartButton == null)
-      restartButton = GameObject.Find("RestartButton")?.GetComponent<Button>();
-  }
-
   private void ApplyButtonLabels()
   {
-    SetButtonLabel(betSafeButton, safeOption.ButtonLabel);
-    SetButtonLabel(betRiskButton, riskOption.ButtonLabel);
-    SetButtonLabel(betAllInButton, allInOption.ButtonLabel);
+    SetButtonLabel(betSafeButton, safeOption.FormatButtonLabel(testBoss));
+    SetButtonLabel(betRiskButton, riskOption.FormatButtonLabel(testBoss));
+    SetButtonLabel(betAllInButton, allInOption.FormatButtonLabel(testBoss));
   }
 
   private static void SetButtonLabel(Button button, string label)

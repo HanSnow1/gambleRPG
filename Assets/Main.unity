@@ -1013,6 +1013,7 @@ GameObject:
   - component: {fileID: 1314044423}
   - component: {fileID: 1314044422}
   - component: {fileID: 1314044426}
+  - component: {fileID: 1314044427}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -1152,6 +1153,30 @@ MonoBehaviour:
   betRiskButton: {fileID: 0}
   betAllInButton: {fileID: 0}
   restartButton: {fileID: 123241038}
+--- !u!114 &1314044427
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1314044421}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7c4e91b2d8f4a64b9e1035c6d2f8a01, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BossPreviewUI
+  combatUI: {fileID: 1314044426}
+  previewPanel: {fileID: 0}
+  titleText: {fileID: 0}
+  bossNameText: {fileID: 0}
+  ruleText: {fileID: 0}
+  hintsText: {fileID: 0}
+  startFightButton: {fileID: 0}
+  previewDiceButton: {fileID: 0}
+  previewCardButton: {fileID: 0}
+  defaultBoss: {fileID: 11400000, guid: c33e6e7ee897ff043bf8c2ee1ad2c9f5, type: 2}
+  diceBoss: {fileID: 11400000, guid: fedb8b23c1bd3dd4a84b275a5b8647d1, type: 2}
+  cardBoss: {fileID: 11400000, guid: c33e6e7ee897ff043bf8c2ee1ad2c9f5, type: 2}
 --- !u!1 &1377147375
 GameObject:
   m_ObjectHideFlags: 0
