@@ -16,6 +16,7 @@ public class PlayerAugmentState : MonoBehaviour
   [SerializeField] private int basePlayerMaxHp = 100;
 
   private readonly List<OwnedAugment> _owned = new();
+  private readonly Dictionary<string, int> _runChargesByAugmentId = new();
 
   public IReadOnlyList<OwnedAugment> Owned => _owned;
 
@@ -28,6 +29,99 @@ public class PlayerAugmentState : MonoBehaviour
     }
 
     Instance = this;
+  }
+
+  public void ClearAll()
+  {
+    _owned.Clear();
+    _runChargesByAugmentId.Clear();
+  }
+
+  /// <summary>
+  /// Resets per-run counters (e.g. cheat-death charges). Call once when a new run starts.
+  /// </summary>
+  public void ResetRunCounters()
+  {
+    _runChargesByAugmentId.Clear();
+
+    foreach (var owned in _owned)
+    {
+      if (owned.definition == null)
+        continue;
+
+      if (owned.definition.effectType != AugmentEffectType.PreventDeathHealPercent &&
+          owned.definition.effectType != AugmentEffectType.PreventDeathSurviveOneHp)
+        continue;
+
+      int charges = Mathf.Max(0, Mathf.RoundToInt(owned.definition.GetValue(owned.level)));
+      if (charges <= 0)
+        continue;
+
+      _runChargesByAugmentId[owned.definition.augmentId] = charges;
+    }
+  }
+
+  public bool TryPreventDeath(BettingCombatSystem combat, out string logLine)
+  {
+    logLine = null;
+    if (combat == null)
+      return false;
+
+    if (combat.State.playerHp > 0)
+      return false;
+
+    // Priority: heal version first, then "survive at 1".
+    if (TryConsumePreventDeathByType(combat, AugmentEffectType.PreventDeathHealPercent, out logLine))
+      return true;
+
+    if (TryConsumePreventDeathByType(combat, AugmentEffectType.PreventDeathSurviveOneHp, out logLine))
+      return true;
+
+    return false;
+  }
+
+  private bool TryConsumePreventDeathByType(BettingCombatSystem combat, AugmentEffectType type, out string logLine)
+  {
+    logLine = null;
+
+    for (int i = 0; i < _owned.Count; i++)
+    {
+      var owned = _owned[i];
+      if (owned.definition == null)
+        continue;
+      if (owned.definition.effectType != type)
+        continue;
+
+      string id = owned.definition.augmentId;
+      if (string.IsNullOrEmpty(id))
+        continue;
+
+      int remaining = 0;
+      _runChargesByAugmentId.TryGetValue(id, out remaining);
+      if (remaining <= 0)
+        continue;
+
+      remaining--;
+      _runChargesByAugmentId[id] = remaining;
+
+      if (type == AugmentEffectType.PreventDeathHealPercent)
+      {
+        float healPct = owned.definition.GetSecondaryValue(owned.level);
+        int healAmount = Mathf.RoundToInt(combat.State.playerMaxHp * (healPct / 100f));
+        combat.State.playerHp = Mathf.Clamp(healAmount, 1, combat.State.playerMaxHp);
+        logLine = $"Cheat death: {owned.definition.displayName} (heal {healPct:0}% max HP)  [{remaining} left]";
+        return true;
+      }
+
+      if (type == AugmentEffectType.PreventDeathSurviveOneHp)
+      {
+        combat.State.playerHp = 1;
+        logLine = $"Cheat death: {owned.definition.displayName} (survive at 1 HP)  [{remaining} left]";
+        return true;
+      }
+    }
+
+    return false;
   }
 
   public bool IsMaxedOut(AugmentDefinition def)

@@ -167,7 +167,17 @@ public class CombatUI : MonoBehaviour
   public void OnBetMedium() => DoBet(riskOption);
   public void OnBetLarge() => DoBet(allInOption);
 
-  public void OnRestartCombat() => StartNewCombat();
+  public void OnRestartCombat()
+  {
+    var flow = FindFirstObjectByType<GameFlowController>();
+    if (flow != null)
+    {
+      flow.RestartFromCombat();
+      return;
+    }
+
+    StartNewCombat();
+  }
 
   private void DoBet(CombatBetOption option)
   {

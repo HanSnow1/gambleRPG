@@ -47,6 +47,7 @@ public class BettingCombatSystem : MonoBehaviour
 
     betHp = Mathf.Clamp(betHp, 1, State.playerHp);
     State.playerHp -= betHp;
+    TryHandleCheatDeath();
 
     bool success = UnityEngine.Random.value <= successChance;
     if (success)
@@ -56,7 +57,9 @@ public class BettingCombatSystem : MonoBehaviour
     }
     else
     {
-      State.playerHp = Mathf.Max(0, State.playerHp - extraFailDamage);
+      State.playerHp -= extraFailDamage;
+      if (!TryHandleCheatDeath())
+        State.playerHp = Mathf.Max(0, State.playerHp);
       Log($"Fail! Bet {betHp} + extra {extraFailDamage} (chance {successChance:P0})");
     }
 
@@ -70,6 +73,30 @@ public class BettingCombatSystem : MonoBehaviour
 
     NotifyStateChanged();
     return true;
+  }
+
+  private bool TryHandleCheatDeath()
+  {
+    if (State.playerHp > 0)
+      return false;
+
+    if (PlayerAugmentState.Instance == null)
+      return false;
+
+    if (PlayerAugmentState.Instance.TryPreventDeath(this, out string msg))
+    {
+      if (!string.IsNullOrEmpty(msg))
+        Log(msg);
+      return true;
+    }
+
+    return false;
+  }
+
+  public void EndCombat()
+  {
+    IsCombatActive = false;
+    NotifyStateChanged();
   }
 
   public void LogMessage(string msg) => OnCombatLog?.Invoke(msg);

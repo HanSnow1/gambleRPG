@@ -71,6 +71,19 @@ public class GameFlowController : MonoBehaviour
     runManager.StartNewRun();
   }
 
+  /// <summary>Restart from combat: new run + opening augment pick.</summary>
+  public void RestartFromCombat()
+  {
+    var combat = FindFirstObjectByType<BettingCombatSystem>();
+    combat?.EndCombat();
+
+    augmentPickUI?.Hide();
+    bossPreviewUI?.HidePreview();
+    PlayerAugmentState.Instance?.ClearAll();
+
+    runManager.StartNewRun();
+  }
+
   private void EnsureAugmentServices()
   {
     if (augmentPickUI == null)
@@ -89,6 +102,8 @@ public class GameFlowController : MonoBehaviour
 
   private void HandleRunStarted(RunState state)
   {
+    PlayerAugmentState.Instance?.ResetRunCounters();
+
     if (requireOpeningAugment && augmentPickUI != null)
     {
       runManager.SetPhase(RunPhase.AugmentPick);
