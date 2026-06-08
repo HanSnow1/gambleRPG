@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1, type: 3}
+  m_Name: Pattern_Card_A
+  m_EditorClassIdentifier: Assembly-CSharp::BossPatternDefinition
+  patternId: 0
+  displayName: Queen's Mark
+  description: 여왕이 배팅 슬롯 하나에 표식. 표식 배팅 실패 시 칩 +3; 3턴마다 표식 이동.
+  previewHint: 한 배팅에 여왕의 표식 — 그 줄은 여왕 유리, 플레이어 불리.
+  counterHint: ♛ 슬롯 피하기 또는 Revealed Cup; Safe/All-in은 표식 회피.
+  introNarration: 여왕이 한 패턴에 왕관을 새긴다. 곧 옮겨간다.
+  minigameType: 2
+  playerSafeSuccessMod: 0
+  playerRiskSuccessMod: 0
+  playerAllInSuccessMod: 0
+  enemySuccessBonus: 0
+  enemyBetStyle: 2
+  playerExtraChipOnMiss: 0
+  playerExtraChipOnRiskMissOnly: 3
+  jokerPenaltyOnFirstMiss: 0

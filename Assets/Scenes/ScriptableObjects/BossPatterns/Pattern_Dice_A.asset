@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1, type: 3}
+  m_Name: Pattern_Dice_A
+  m_EditorClassIdentifier: Assembly-CSharp::BossPatternDefinition
+  patternId: 0
+  displayName: Stolen Number
+  description: 1과 2가 훔쳐짐(☠). 안전 배팅 성공률 -15%.
+  previewHint: 낮은 숫자를 훔침 — 안전 배팅이 위험해집니다.
+  counterHint: 리스크/올인 위주; Extra Pip로 저주 면 보완.
+  introNarration: 폭군이 주사위에서 1과 2를 빼앗습니다. 안전 배팅은 함정입니다.
+  minigameType: 1
+  playerSafeSuccessMod: -15
+  playerRiskSuccessMod: 0
+  playerAllInSuccessMod: 0
+  enemySuccessBonus: 0
+  enemyBetStyle: 0
+  playerExtraChipOnMiss: 0
+  playerExtraChipOnRiskMissOnly: 0
+  jokerPenaltyOnFirstMiss: 0

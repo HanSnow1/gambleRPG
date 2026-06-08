@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1, type: 3}
+  m_Name: Pattern_Dice_B
+  m_EditorClassIdentifier: Assembly-CSharp::BossPatternDefinition
+  patternId: 1
+  displayName: Curse of Sixes
+  description: 1 또는 6을 무작위로 저주. 올인 -15%; 보스 성공률 +5% 및 올인 선호.
+  previewHint: 1 또는 6 중 하나가 저주됨 — 매 전투마다 전략이 바뀝니다.
+  counterHint: 저주된 면을 확인; 6이 ☠면 올인 회피, 1이 ☠면 안전 회피.
+  introNarration: 바퀴가 돈다… 극단값 하나가 저주된다. 폭군은 정점을 노린다.
+  minigameType: 1
+  playerSafeSuccessMod: 0
+  playerRiskSuccessMod: 0
+  playerAllInSuccessMod: -15
+  enemySuccessBonus: 5
+  enemyBetStyle: 3
+  playerExtraChipOnMiss: 0
+  playerExtraChipOnRiskMissOnly: 0
+  jokerPenaltyOnFirstMiss: 0

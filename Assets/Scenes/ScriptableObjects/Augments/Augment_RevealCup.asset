@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1b2c3d4e5f6478990a1b2c3d4e5f603, type: 3}
+  m_Name: Augment_RevealCup
+  m_EditorClassIdentifier: Assembly-CSharp::AugmentDefinition
+  augmentId: aug_reveal_cup
+  displayName: Revealed Cup
+  shortDescription: '[플래티넘] 컵/카드 보스 대상 — 컵 1개 공개 (+50% 성공).'
+  levelDescriptions:
+  - '컵 또는 카드 보스: 컵 1개 공개 (+50% 성공). 레벨업 없음.'
+  tier: 2
+  alsoOfferInPrismaticPool: 0
+  maxLevel: 1
+  removeFromPoolAtMaxLevel: 1
+  effectType: 8
+  restrictToBossGambleType: 1
+  requiredBossGambleType: 2
+  valuesPerLevel:
+  - 50
+  secondaryValuesPerLevel: []

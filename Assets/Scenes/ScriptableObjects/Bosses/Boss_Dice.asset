@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f55b1d98b506bf47811170a3b36969f, type: 3}
+  m_Name: Boss_Dice
+  m_EditorClassIdentifier: Assembly-CSharp::BossDefinition
+  bossId: boss_dice
+  displayName: Dice Tyrant
+  weaknessHint: 낮은 숫자를 보완하거나 최고값(6)을 노리면 Dice Tyrant를 더 쉽게
+    상대할 수 있습니다.
+  riskPatternHintA: 숫자 하나를 훔치고, 해당 숫자에 페널티가 붙는 특수 기호(☠)를
+    추가합니다.
+  riskPatternHintB: '**특수 패턴**
+
+    
+
+    1 또는 6 중 하나를 저주하고, 각 숫자에
+    특수 효과를 부여합니다.'
+  portrait: {fileID: 0}
+  gambleType: 0
+  maxHp: 120
+  baseAttack: 12
+  patternA: {fileID: 11400000, guid: a1010101010101010101010101010101, type: 2}
+  patternB: {fileID: 11400000, guid: a2020202020202020202020202020202, type: 2}

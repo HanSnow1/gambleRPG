@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f55b1d98b506bf47811170a3b36969f, type: 3}
+  m_Name: Boss_Crad
+  m_EditorClassIdentifier: Assembly-CSharp::BossDefinition
+  bossId: boss_card
+  displayName: Queen Of Cards
+  weaknessHint: 한 가지 전략에 집중해 투자하세요.
+  riskPatternHintA: 여왕의 표식을 한 배팅에 새기면 여왕에게 보너스, 플레이어에게
+    페널티가 붙습니다.
+  riskPatternHintB: 덱에 조커를 섞어두고, 조커를 뽑는 즉시 큰 페널티를 받습니다.
+  portrait: {fileID: 0}
+  gambleType: 1
+  maxHp: 120
+  baseAttack: 12
+  patternA: {fileID: 11400000, guid: a3030303030303030303030303030303, type: 2}
+  patternB: {fileID: 11400000, guid: a4040404040404040404040404040404, type: 2}
