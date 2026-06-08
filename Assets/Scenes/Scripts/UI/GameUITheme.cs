@@ -21,11 +21,37 @@ public static class GameUITheme
   public static readonly Color HpMid = Hex("#E8C547");
   public static readonly Color HpLow = Hex("#FF6B6B");
 
+  private static readonly Color TavernButton = Hex("#7A4826");
+  private static readonly Color TavernButtonPressed = Hex("#4A2A16");
+
   public static Color Hex(string hex)
   {
     if (ColorUtility.TryParseHtmlString(hex, out Color c))
       return c;
     return Color.white;
+  }
+
+  // Slightly blurred full-screen background loaded from Resources/UI/title_bg.
+  private static Sprite _backgroundSprite;
+  private static bool _backgroundLoaded;
+
+  public static Sprite GetBackgroundSprite()
+  {
+    if (_backgroundLoaded)
+      return _backgroundSprite;
+
+    _backgroundLoaded = true;
+    var tex = Resources.Load<Texture2D>("UI/title_bg");
+    if (tex != null)
+    {
+      _backgroundSprite = Sprite.Create(
+        tex,
+        new Rect(0f, 0f, tex.width, tex.height),
+        new Vector2(0.5f, 0.5f),
+        100f);
+    }
+
+    return _backgroundSprite;
   }
 
   public static void ApplyCanvasBackground(Transform canvas)
@@ -42,7 +68,20 @@ public static class GameUITheme
     rt.anchorMax = Vector2.one;
     rt.offsetMin = Vector2.zero;
     rt.offsetMax = Vector2.zero;
-    bg.GetComponent<Image>().color = BgDeep;
+
+    var img = bg.GetComponent<Image>();
+    var sprite = GetBackgroundSprite();
+    if (sprite != null)
+    {
+      img.sprite = sprite;
+      img.type = Image.Type.Simple;
+      img.preserveAspect = false;
+      img.color = Color.white;
+    }
+    else
+    {
+      img.color = BgDeep;
+    }
   }
 
   public static void ConfigureCanvasScaler(CanvasScaler scaler)
@@ -60,6 +99,7 @@ public static class GameUITheme
     if (image == null)
       return;
     image.color = new Color(BgPanel.r, BgPanel.g, BgPanel.b, 0.96f);
+    ApplyTavernOutline(image, Border, new Vector2(2f, -2f));
   }
 
   public static Image WrapTextInPanel(TMP_Text text, string panelName, Vector2 padding)
@@ -81,6 +121,7 @@ public static class GameUITheme
 
     var img = panel.GetComponent<Image>();
     img.color = new Color(BgPanelLight.r, BgPanelLight.g, BgPanelLight.b, 0.88f);
+    ApplyTavernOutline(img, Border, new Vector2(1.5f, -1.5f));
 
     text.transform.SetParent(panel.transform, false);
     var innerRt = text.GetComponent<RectTransform>();
@@ -105,7 +146,7 @@ public static class GameUITheme
     rootRt.anchoredPosition = new Vector2(0, -4);
     rootRt.sizeDelta = new Vector2(0, 8);
 
-    barRoot.GetComponent<Image>().color = new Color(0, 0, 0, 0.45f);
+    barRoot.GetComponent<Image>().color = new Color(BgDeep.r, BgDeep.g, BgDeep.b, 0.72f);
 
     var fillGo = new GameObject("Fill", typeof(RectTransform), typeof(Image));
     fillGo.transform.SetParent(barRoot.transform, false);
@@ -151,18 +192,22 @@ public static class GameUITheme
       "Safe" => SafeBet,
       "Risk" => RiskBet,
       "All-in" => AllInBet,
-      "Hidden" => Hex("#5B6B8A"),
+      "Hidden" => Hex("#6B4A30"),
       _ => Accent
     };
 
     if (img != null)
-      img.color = baseColor;
+    {
+      Color fill = baseColor;
+      fill.a = 0.95f;
+      ApplyRoundedFrameStyle(img, fill);
+    }
 
     var colors = button.colors;
     colors.normalColor = Color.white;
-    colors.highlightedColor = new Color(1.1f, 1.1f, 1.1f);
-    colors.pressedColor = new Color(0.85f, 0.85f, 0.85f);
-    colors.disabledColor = new Color(0.45f, 0.45f, 0.45f, 0.7f);
+    colors.highlightedColor = new Color(1.12f, 1.08f, 0.98f);
+    colors.pressedColor = new Color(0.72f, 0.58f, 0.42f);
+    colors.disabledColor = new Color(0.35f, 0.27f, 0.2f, 0.7f);
     button.colors = colors;
 
     var tmp = button.GetComponentInChildren<TMP_Text>();
@@ -192,14 +237,17 @@ public static class GameUITheme
     rt.sizeDelta = size;
 
     var img = go.GetComponent<Image>();
-    img.color = bgColor;
+    // GambleRogue-style: translucent dark fill (slightly tinted) + gold rounded border.
+    Color fill = Color.Lerp(BgDeep, bgColor, 0.32f);
+    fill.a = 0.8f;
+    ApplyRoundedFrameStyle(img, fill);
 
     var btn = go.GetComponent<Button>();
     var colors = btn.colors;
     colors.normalColor = Color.white;
-    colors.highlightedColor = new Color(1.08f, 1.08f, 1.08f);
-    colors.pressedColor = new Color(0.88f, 0.88f, 0.88f);
-    colors.disabledColor = new Color(0.5f, 0.5f, 0.5f, 0.6f);
+    colors.highlightedColor = new Color(1.12f, 1.08f, 0.98f);
+    colors.pressedColor = TavernButtonPressed;
+    colors.disabledColor = new Color(0.35f, 0.27f, 0.2f, 0.6f);
     btn.colors = colors;
 
     if (onClick != null)
@@ -212,6 +260,7 @@ public static class GameUITheme
     labelRt.offsetMin = Vector2.zero;
     labelRt.offsetMax = Vector2.zero;
     labelTmp.alignment = TextAlignmentOptions.Center;
+    labelTmp.color = TextPrimary;
 
     return btn;
   }
@@ -270,11 +319,97 @@ public static class GameUITheme
   public static Color GetAugmentTierColor(AugmentTier tier) =>
     tier switch
     {
-      AugmentTier.Silver => Hex("#6B7A8F"),
-      AugmentTier.Gold => Hex("#C9A227"),
-      AugmentTier.Prismatic => Hex("#9B59D4"),
+      AugmentTier.Silver => Hex("#B9C0C9"),
+      AugmentTier.Gold => Hex("#D8A73C"),
+      AugmentTier.Prismatic => Hex("#A855F7"),
       _ => Hex("#4A5568")
     };
+
+  private static void ApplyTavernOutline(Graphic graphic, Color color, Vector2 distance)
+  {
+    if (graphic == null)
+      return;
+
+    var outline = graphic.GetComponent<Outline>() ?? graphic.gameObject.AddComponent<Outline>();
+    outline.effectColor = new Color(color.r, color.g, color.b, 0.88f);
+    outline.effectDistance = distance;
+    outline.useGraphicAlpha = true;
+  }
+
+  // Shared "GambleRogue" style: rounded translucent dark fill with a gold border ring.
+  public static void ApplyRoundedFrameStyle(Image img, Color fillColor, float goldAlpha = 1f)
+  {
+    if (img == null)
+      return;
+
+    img.sprite = GetButtonFillSprite();
+    img.type = Image.Type.Sliced;
+    img.color = fillColor;
+
+    var oldOutline = img.GetComponent<Outline>();
+    if (oldOutline != null)
+      Object.Destroy(oldOutline);
+
+    var existing = img.transform.Find("GoldFrame");
+    GameObject frameGo = existing != null
+      ? existing.gameObject
+      : new GameObject("GoldFrame", typeof(RectTransform), typeof(Image));
+    if (existing == null)
+      frameGo.transform.SetParent(img.transform, false);
+
+    var frt = frameGo.GetComponent<RectTransform>();
+    frt.anchorMin = Vector2.zero;
+    frt.anchorMax = Vector2.one;
+    frt.offsetMin = Vector2.zero;
+    frt.offsetMax = Vector2.zero;
+
+    var fimg = frameGo.GetComponent<Image>();
+    fimg.sprite = GetButtonGoldRingSprite();
+    fimg.type = Image.Type.Sliced;
+    fimg.raycastTarget = false;
+    fimg.color = new Color(0.957f, 0.788f, 0.365f, goldAlpha);
+
+    // Behind the label, above the fill.
+    frameGo.transform.SetAsFirstSibling();
+  }
+
+  private static Sprite _buttonFillSprite;
+  private static Sprite _buttonGoldRingSprite;
+
+  private static Sprite GetButtonFillSprite() => _buttonFillSprite ??= BuildRoundedSprite(96, 22f, -1f);
+  private static Sprite GetButtonGoldRingSprite() => _buttonGoldRingSprite ??= BuildRoundedSprite(96, 22f, 6f);
+
+  // Rounded rectangle sprite (white, alpha-shaped). borderThickness < 0 => filled; else a ring of that thickness.
+  private static Sprite BuildRoundedSprite(int size, float radius, float borderThickness)
+  {
+    var tex = new Texture2D(size, size, TextureFormat.RGBA32, false) { filterMode = FilterMode.Bilinear };
+    var px = new Color[size * size];
+    float half = size * 0.5f;
+    float inner = half - radius;
+    for (int y = 0; y < size; y++)
+    {
+      for (int x = 0; x < size; x++)
+      {
+        float qx = Mathf.Abs(x + 0.5f - half) - inner;
+        float qy = Mathf.Abs(y + 0.5f - half) - inner;
+        float ax = Mathf.Max(qx, 0f);
+        float ay = Mathf.Max(qy, 0f);
+        float dist = Mathf.Sqrt(ax * ax + ay * ay) + Mathf.Min(Mathf.Max(qx, qy), 0f) - radius;
+
+        float a;
+        if (borderThickness < 0f)
+          a = Mathf.Clamp01(0.5f - dist);
+        else
+          a = Mathf.Clamp01(0.5f - Mathf.Abs(dist + borderThickness * 0.5f) + borderThickness * 0.5f)
+              * Mathf.Clamp01(0.5f - dist);
+        px[y * size + x] = new Color(1f, 1f, 1f, a);
+      }
+    }
+    tex.SetPixels(px);
+    tex.Apply();
+    int b = Mathf.CeilToInt(radius) + 2;
+    return Sprite.Create(tex, new Rect(0f, 0f, size, size), new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect, new Vector4(b, b, b, b));
+  }
 
   private static void ApplyFont(TMP_Text tmp)
   {

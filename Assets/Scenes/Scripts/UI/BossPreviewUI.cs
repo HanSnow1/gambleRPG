@@ -18,8 +18,7 @@ public class BossPreviewUI : MonoBehaviour
     "BossRuleText",
     "BetSmall",
     "BetMedium",
-    "BetLarge",
-    "RestartButton"
+    "BetLarge"
   };
 
   [Header("References")]
@@ -91,7 +90,7 @@ public class BossPreviewUI : MonoBehaviour
   /// <summary>Called by RunManager (Role C) when the run's boss is chosen.</summary>
   public void ShowPreview(BossDefinition boss, bool finalBoss = false, int normalFightsCompleted = 0)
   {
-    _currentBoss = boss;
+    _currentBoss = boss != null ? boss : GetFloorBossFallback();
     _isFinalBossPreview = finalBoss;
     SetCombatHudVisible(false);
 
@@ -154,6 +153,11 @@ public class BossPreviewUI : MonoBehaviour
 
   private void RefreshPreviewText(int normalFightsCompleted = 0)
   {
+    ResolvePreviewReferences();
+
+    if (_currentBoss == null)
+      _currentBoss = GetFloorBossFallback();
+
     if (_currentBoss == null)
       return;
 
@@ -222,10 +226,25 @@ public class BossPreviewUI : MonoBehaviour
       return;
 
     titleText ??= FindTmpInPanel("PreviewTitleText");
+    if (titleText == null)
+      titleText = FindTmpRecursive(previewPanel.transform, "title");
+
     bossNameText ??= FindTmpInPanel("PreviewBossNameText");
+    if (bossNameText == null)
+      bossNameText = FindTmpRecursive(previewPanel.transform, "boss");
+
     ruleText ??= FindTmpInPanel("PreviewRuleText");
+    if (ruleText == null)
+      ruleText = FindTmpRecursive(previewPanel.transform, "rule");
+
     hintsText ??= FindTmpInPanel("PreviewHintsText");
+    if (hintsText == null)
+      hintsText = FindTmpRecursive(previewPanel.transform, "hint");
+
     startFightButton ??= FindButtonInPanel("StartFightButton");
+    if (startFightButton == null)
+      startFightButton = FindButtonRecursive(previewPanel.transform, "start");
+
     previewDiceButton ??= FindButtonInPanel("PreviewDiceButton");
     previewCardButton ??= FindButtonInPanel("PreviewCardButton");
   }
@@ -235,6 +254,52 @@ public class BossPreviewUI : MonoBehaviour
 
   private Button FindButtonInPanel(string childName) =>
     previewPanel.transform.Find(childName)?.GetComponent<Button>();
+
+  private BossDefinition GetFloorBossFallback()
+  {
+    int floor = RunManager.Instance != null && RunManager.Instance.State.isActive
+      ? RunManager.Instance.State.currentFloor
+      : 1;
+    return floor <= 1 ? diceBoss : cardBoss;
+  }
+
+  private static TMP_Text FindTmpRecursive(Transform root, string nameTokenLower)
+  {
+    if (root == null)
+      return null;
+
+    var tmp = root.GetComponent<TMP_Text>();
+    if (tmp != null && root.name.ToLower().Contains(nameTokenLower))
+      return tmp;
+
+    for (int i = 0; i < root.childCount; i++)
+    {
+      var found = FindTmpRecursive(root.GetChild(i), nameTokenLower);
+      if (found != null)
+        return found;
+    }
+
+    return null;
+  }
+
+  private static Button FindButtonRecursive(Transform root, string nameTokenLower)
+  {
+    if (root == null)
+      return null;
+
+    var btn = root.GetComponent<Button>();
+    if (btn != null && root.name.ToLower().Contains(nameTokenLower))
+      return btn;
+
+    for (int i = 0; i < root.childCount; i++)
+    {
+      var found = FindButtonRecursive(root.GetChild(i), nameTokenLower);
+      if (found != null)
+        return found;
+    }
+
+    return null;
+  }
 
   private void EnsurePreviewPanelExists()
   {
@@ -264,15 +329,26 @@ public class BossPreviewUI : MonoBehaviour
     panelRect.offsetMax = Vector2.zero;
 
     var bg = panel.GetComponent<Image>();
-    GameUITheme.StyleOverlayPanel(bg);
+    bg.sprite = LoadSprite("UI/dice_boss_preview");
+    bg.color = bg.sprite != null ? Color.white : GameUITheme.BgPanel;
+    bg.preserveAspect = false;
+
+    var scrim = new GameObject("PreviewScrim", typeof(RectTransform), typeof(Image));
+    scrim.transform.SetParent(panel.transform, false);
+    var scrimRt = scrim.GetComponent<RectTransform>();
+    scrimRt.anchorMin = Vector2.zero;
+    scrimRt.anchorMax = Vector2.one;
+    scrimRt.offsetMin = Vector2.zero;
+    scrimRt.offsetMax = Vector2.zero;
+    scrim.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.22f);
 
     var contentBox = new GameObject("PreviewContent", typeof(RectTransform), typeof(Image));
     contentBox.transform.SetParent(panel.transform, false);
     var boxRt = contentBox.GetComponent<RectTransform>();
     boxRt.anchorMin = boxRt.anchorMax = new Vector2(0.5f, 0.5f);
-    boxRt.anchoredPosition = new Vector2(0, 20);
-    boxRt.sizeDelta = new Vector2(760, 520);
-    contentBox.GetComponent<Image>().color = GameUITheme.BgPanelLight;
+    boxRt.anchoredPosition = new Vector2(-330, 10);
+    boxRt.sizeDelta = new Vector2(470, 540);
+    GameUITheme.ApplyRoundedFrameStyle(contentBox.GetComponent<Image>(), new Color(GameUITheme.BgPanel.r, GameUITheme.BgPanel.g, GameUITheme.BgPanel.b, 0.84f));
 
     GameUITheme.CreateText(contentBox.transform, "PreviewTitleText", GameUIText.PreviewTitle, 30, FontStyles.Bold,
       TextAlignmentOptions.Top);
@@ -280,7 +356,7 @@ public class BossPreviewUI : MonoBehaviour
     titleRt.anchorMin = new Vector2(0, 1);
     titleRt.anchorMax = new Vector2(1, 1);
     titleRt.pivot = new Vector2(0.5f, 1);
-    titleRt.anchoredPosition = new Vector2(0, -16);
+    titleRt.anchoredPosition = new Vector2(0, -20);
     titleRt.sizeDelta = new Vector2(-40, 44);
     contentBox.transform.Find("PreviewTitleText").GetComponent<TMP_Text>().color = GameUITheme.Accent;
 
@@ -290,8 +366,8 @@ public class BossPreviewUI : MonoBehaviour
     nameRt.anchorMin = new Vector2(0, 1);
     nameRt.anchorMax = new Vector2(1, 1);
     nameRt.pivot = new Vector2(0.5f, 1);
-    nameRt.anchoredPosition = new Vector2(0, -64);
-    nameRt.sizeDelta = new Vector2(-40, 36);
+    nameRt.anchoredPosition = new Vector2(0, -76);
+    nameRt.sizeDelta = new Vector2(-40, 48);
 
     GameUITheme.CreateText(contentBox.transform, "PreviewRuleText", "보스 규칙", 16, FontStyles.Italic,
       TextAlignmentOptions.Top);
@@ -299,8 +375,8 @@ public class BossPreviewUI : MonoBehaviour
     ruleRt.anchorMin = new Vector2(0, 1);
     ruleRt.anchorMax = new Vector2(1, 1);
     ruleRt.pivot = new Vector2(0.5f, 1);
-    ruleRt.anchoredPosition = new Vector2(0, -104);
-    ruleRt.sizeDelta = new Vector2(-40, 30);
+    ruleRt.anchoredPosition = new Vector2(0, -132);
+    ruleRt.sizeDelta = new Vector2(-40, 42);
     contentBox.transform.Find("PreviewRuleText").GetComponent<TMP_Text>().color = GameUITheme.TextMuted;
 
     GameUITheme.CreateText(contentBox.transform, "PreviewHintsText", "힌트...", 14, FontStyles.Normal,
@@ -308,18 +384,23 @@ public class BossPreviewUI : MonoBehaviour
     var hintsRt = contentBox.transform.Find("PreviewHintsText").GetComponent<RectTransform>();
     hintsRt.anchorMin = new Vector2(0, 0);
     hintsRt.anchorMax = new Vector2(1, 1);
-    hintsRt.offsetMin = new Vector2(24, 100);
-    hintsRt.offsetMax = new Vector2(-24, -140);
+    hintsRt.offsetMin = new Vector2(24, 102);
+    hintsRt.offsetMax = new Vector2(-24, -190);
     contentBox.transform.Find("PreviewHintsText").GetComponent<TMP_Text>().color = GameUITheme.TextPrimary;
 
     GameUITheme.CreateButton(contentBox.transform, "StartFightButton", GameUIText.StartFight, new Vector2(0, -220),
       new Vector2(260, 48), GameUITheme.Accent);
-    GameUITheme.CreateButton(contentBox.transform, "PreviewDiceButton", GameUIText.DiceBossBtn, new Vector2(-150, -280),
-      new Vector2(170, 40), GameUITheme.Border);
-    GameUITheme.CreateButton(contentBox.transform, "PreviewCardButton", GameUIText.CardBossBtn, new Vector2(150, -280),
-      new Vector2(170, 40), GameUITheme.Border);
 
     return panel;
+  }
+
+  private static Sprite LoadSprite(string resourcePath)
+  {
+    var tex = Resources.Load<Texture2D>(resourcePath);
+    if (tex == null)
+      return null;
+
+    return Sprite.Create(tex, new Rect(0f, 0f, tex.width, tex.height), new Vector2(0.5f, 0.5f), 100f);
   }
 
   private static void CreateTmp(
@@ -364,7 +445,7 @@ public class BossPreviewUI : MonoBehaviour
     rect.sizeDelta = size;
 
     var image = go.GetComponent<Image>();
-    image.color = new Color(0.25f, 0.45f, 0.75f, 1f);
+    GameUITheme.ApplyRoundedFrameStyle(image, new Color(0.16f, 0.2f, 0.34f, 0.85f));
 
     var labelGo = new GameObject("Text", typeof(RectTransform));
     labelGo.transform.SetParent(go.transform, false);

@@ -84,7 +84,7 @@ public static class GameUIText
     {
       AugmentTier.Silver => "실버",
       AugmentTier.Gold => "골드",
-      AugmentTier.Prismatic => "프리즘",
+      AugmentTier.Prismatic => "플래티넘",
       _ => "?"
     };
 
@@ -166,20 +166,20 @@ public static class GameUIText
   public static string EnemyDefeated => "적 처치!";
   public static string GameOverHpZero => "게임 오버 — HP 0";
   public static string HotStreakHeal(int amount, int streak) =>
-    $"연속 적중: +{amount} HP (연속 {streak}회)";
+    $"증강 발동! 연속 적중: +{amount} HP (연속 {streak}회)";
   public static string AugmentExtraPip(float bonus) => $"증강: 추가 눈금 활성 (+{bonus:P0} 주사위 보스 성공)";
   public static string AugmentRevealedCup(float bonus) => $"증강: 공개 컵 활성 (+{bonus:P0} 성공 — 컵 1개 확인)";
   public static string AugmentBossSlayer(float bonus) => $"증강: 보스 학살자 활성 (+{bonus:0}% 보스 데미지)";
   public static string BossSlayerLog(float pct, int before, int damage) =>
-    $"보스 학살자: 보스 대상 +{pct:0}% ({before} → {damage})";
+    $"증강 발동! 보스 학살자: 보스 대상 +{pct:0}% ({before} → {damage})";
   public static string LoadedDiceLog(int level, float bonusPct, int before, int damage) =>
-    $"장전 주사위 Lv{level}: +{bonusPct:P0} 데미지 ({before} → {damage})";
+    $"증강 발동! 장전 주사위 Lv{level}: +{bonusPct:P0} 데미지 ({before} → {damage})";
   public static string DoubleDownDealLog(int level, int before, int damage) =>
-    $"더블 다운 Lv{level}: 가하는 데미지 ×2 ({before} → {damage})";
+    $"증강 발동! 더블 다운 Lv{level}: 가하는 데미지 ×2 ({before} → {damage})";
   public static string DoubleDownChipLog(int level, int before, int chip) =>
-    $"더블 다운 Lv{level}: 칩 데미지 ×2 ({before} → {chip})";
+    $"증강 발동! 더블 다운 Lv{level}: 칩 데미지 ×2 ({before} → {chip})";
   public static string DoubleDownTakenLog(int level, int before, int damage) =>
-    $"더블 다운 Lv{level}: 받는 데미지 ×2 ({before} → {damage})";
+    $"증강 발동! 더블 다운 Lv{level}: 받는 데미지 ×2 ({before} → {damage})";
   public static string AugmentsNone => "증강: 없음";
   public static string RelicsNone => "유물: 없음";
   public static string AugmentsSummary(string list) => $"증강: {list}";
@@ -241,7 +241,7 @@ public static class GameUIText
     marked ? $"[♛ {BetLabel(label)}]" : $"[ {BetLabel(label)} ]";
 
   public static string VictoryFullBody =>
-    "모든 층 클리어!\n주사위 폭군과 카드의 여왕을 처치했습니다.";
+    "당신은 모든 행운을 극복했습니다";
 
   public static string BossPatternIntro(BossPatternId id, string name, string description) =>
     $"보스 패턴: [{id}] {name}\n{description}";

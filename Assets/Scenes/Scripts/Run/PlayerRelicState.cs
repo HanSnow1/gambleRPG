@@ -2,6 +2,14 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum FloorRewardType
+{
+  None = 0,
+  BreadHat = 1,
+  Spear = 2,
+  MysticCoin = 3
+}
+
 public class PlayerRelicState : MonoBehaviour
 {
   public static PlayerRelicState Instance { get; private set; }
@@ -16,8 +24,12 @@ public class PlayerRelicState : MonoBehaviour
   [SerializeField] private RelicCatalog catalog;
 
   private readonly List<OwnedRelic> _owned = new();
+  private FloorRewardType _floorReward = FloorRewardType.None;
+  private int _floorRewardTurnCounter;
+  private bool _coinTriggeredThisCombat;
 
   public IReadOnlyList<OwnedRelic> Owned => _owned;
+  public FloorRewardType FloorReward => _floorReward;
 
   private void Awake()
   {
@@ -37,7 +49,15 @@ public class PlayerRelicState : MonoBehaviour
   public void ClearAll()
   {
     _owned.Clear();
+    ClearFloorReward();
     SyncRunStateRelicIds();
+  }
+
+  public void ClearFloorReward()
+  {
+    _floorReward = FloorRewardType.None;
+    _floorRewardTurnCounter = 0;
+    _coinTriggeredThisCombat = false;
   }
 
   public bool HasAnyRelic()
@@ -50,6 +70,41 @@ public class PlayerRelicState : MonoBehaviour
 
     return false;
   }
+
+  public FloorRewardType GrantRandomFloorReward()
+  {
+    _floorReward = (FloorRewardType)UnityEngine.Random.Range(1, 4);
+    _floorRewardTurnCounter = 0;
+    _coinTriggeredThisCombat = false;
+    return _floorReward;
+  }
+
+  public static string GetFloorRewardName(FloorRewardType reward) =>
+    reward switch
+    {
+      FloorRewardType.BreadHat => "허름한 투명모자",
+      FloorRewardType.Spear => "마나모니",
+      FloorRewardType.MysticCoin => "비트코인",
+      _ => "없음"
+    };
+
+  public static string GetFloorRewardDescription(FloorRewardType reward) =>
+    reward switch
+    {
+      FloorRewardType.BreadHat => "3턴마다 한 번, 내가 받는 데미지를 무시한다.",
+      FloorRewardType.Spear => "전투 시작 시 상대방 HP의 25%를 깎고 들어간다.",
+      FloorRewardType.MysticCoin => "신비한 코인이다, 오래가지고있으면 좋은 느낌이 들꺼같다.",
+      _ => "효과 없음"
+    };
+
+  public static string GetFloorRewardSpritePath(FloorRewardType reward) =>
+    reward switch
+    {
+      FloorRewardType.BreadHat => "UI/bread_hat",
+      FloorRewardType.Spear => "UI/spear",
+      FloorRewardType.MysticCoin => "UI/mystic_coin",
+      _ => string.Empty
+    };
 
   public string ApplyGildedMirror(int level, out bool grantedNewRelic)
   {
@@ -153,6 +208,57 @@ public class PlayerRelicState : MonoBehaviour
     }
   }
 
+  public void ApplyFloorRewardCombatStart(BettingCombatSystem combat)
+  {
+    if (!IsFloorRewardActive() || combat == null)
+      return;
+
+    _floorRewardTurnCounter = 0;
+    _coinTriggeredThisCombat = false;
+
+    if (_floorReward == FloorRewardType.BreadHat)
+      combat.LogMessage("[아이템 준비] 허름한 투명모자: 3턴마다 받는 데미지를 1회 무시합니다.");
+    else if (_floorReward == FloorRewardType.MysticCoin)
+      combat.LogMessage("[아이템 준비] 비트코인: 9턴이 지나면 특별한 일이 일어납니다.");
+
+    if (_floorReward == FloorRewardType.Spear)
+    {
+      int cut = Mathf.Max(1, Mathf.RoundToInt(combat.State.enemyMaxHp * 0.25f));
+      int before = combat.State.enemyHp;
+      combat.State.enemyHp = Mathf.Max(0, combat.State.enemyHp - cut);
+      combat.LogMessage($"[아이템 발동] 마나모니: 전투 시작 피해 {before - combat.State.enemyHp} (적 HP 25%)");
+    }
+  }
+
+  public int ModifyIncomingDamageForFloorReward(BettingCombatSystem combat, int incomingDamage)
+  {
+    if (!IsFloorRewardActive() || combat == null || incomingDamage <= 0)
+      return incomingDamage;
+
+    if (_floorReward == FloorRewardType.BreadHat && ((combat.TurnCount + 1) % 3 == 0))
+    {
+      combat.LogMessage($"[아이템 발동] 허름한 투명모자: {combat.TurnCount + 1}턴 피해를 무시했습니다.");
+      return 0;
+    }
+
+    return incomingDamage;
+  }
+
+  public void OnFloorRewardTurnResolved(BettingCombatSystem combat)
+  {
+    if (!IsFloorRewardActive() || combat == null)
+      return;
+
+    _floorRewardTurnCounter++;
+    if (_floorReward == FloorRewardType.MysticCoin && !_coinTriggeredThisCombat && _floorRewardTurnCounter >= 9)
+    {
+      _coinTriggeredThisCombat = true;
+      combat.State.playerMaxHp = 999999;
+      combat.State.playerHp = 999999;
+      combat.LogMessage("[아이템 발동] 비트코인: 9턴 경과! HP가 무한대가 되었습니다.");
+    }
+  }
+
   public float GetDealDamageMultiplier()
   {
     float bonus = 0f;
@@ -227,5 +333,13 @@ public class PlayerRelicState : MonoBehaviour
       RelicStatType.TakeDamagePercent => value >= 0 ? $"+{value:0}% taken" : $"{value:0}% taken",
       _ => $"{value:0}"
     };
+  }
+
+  private bool IsFloorRewardActive()
+  {
+    if (_floorReward == FloorRewardType.None || RunManager.Instance == null || !RunManager.Instance.State.isActive)
+      return false;
+
+    return RunManager.Instance.State.currentFloor == 2;
   }
 }

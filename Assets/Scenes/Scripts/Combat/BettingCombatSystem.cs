@@ -29,6 +29,7 @@ public class BettingCombatSystem : MonoBehaviour
 
   public BossDefinition CurrentBoss { get; private set; }
   public BossPatternController PatternController => _patternController;
+  public int TurnCount { get; private set; }
   public CombatState State { get; } = new CombatState();
   public CombatTurnPhase CurrentPhase { get; private set; } = CombatTurnPhase.Player;
   public bool IsCombatActive { get; private set; }
@@ -46,6 +47,7 @@ public class BettingCombatSystem : MonoBehaviour
     State.playerHp = State.playerMaxHp;
     CurrentPhase = CombatTurnPhase.Player;
     IsCombatActive = true;
+    TurnCount = 0;
     _playerSuccessStreak = 0;
     _patternController.Initialize(boss, this);
 
@@ -56,6 +58,8 @@ public class BettingCombatSystem : MonoBehaviour
     }
     else
       Log(GameUIText.CombatStartEnemy(State.enemyHp));
+
+    PlayerRelicState.Instance?.ApplyFloorRewardCombatStart(this);
 
     NotifyStateChanged();
   }
@@ -120,15 +124,26 @@ public class BettingCombatSystem : MonoBehaviour
     else if (result.duelWinner == DuelWinner.Enemy)
     {
       State.enemyHp -= Mathf.Clamp(result.enemyOption.betHp, 1, State.enemyHp);
-      State.playerHp = Mathf.Max(0, State.playerHp - result.damageToPlayer);
+      int incoming = result.damageToPlayer;
+      incoming = PlayerRelicState.Instance != null
+        ? PlayerRelicState.Instance.ModifyIncomingDamageForFloorReward(this, incoming)
+        : incoming;
+      State.playerHp = Mathf.Max(0, State.playerHp - incoming);
       _playerSuccessStreak = 0;
     }
     else
     {
       _playerSuccessStreak = 0;
-      State.playerHp = Mathf.Max(0, State.playerHp - result.chipToPlayer);
+      int chip = result.chipToPlayer;
+      chip = PlayerRelicState.Instance != null
+        ? PlayerRelicState.Instance.ModifyIncomingDamageForFloorReward(this, chip)
+        : chip;
+      State.playerHp = Mathf.Max(0, State.playerHp - chip);
       State.enemyHp = Mathf.Max(0, State.enemyHp - result.chipToEnemy);
     }
+
+    TurnCount++;
+    PlayerRelicState.Instance?.OnFloorRewardTurnResolved(this);
 
     _patternController.CheckPhaseEnrage(State.enemyHp, State.enemyMaxHp);
     _patternController.Board?.RefreshBoard();

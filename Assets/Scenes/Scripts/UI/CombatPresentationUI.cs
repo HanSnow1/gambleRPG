@@ -315,7 +315,7 @@ public class CombatPresentationUI : MonoBehaviour
     boxRt.anchorMin = boxRt.anchorMax = new Vector2(0.5f, 0.5f);
     boxRt.anchoredPosition = new Vector2(0, 24);
     boxRt.sizeDelta = new Vector2(760, 420);
-    box.GetComponent<Image>().color = GameUITheme.BgPanel;
+    GameUITheme.ApplyRoundedFrameStyle(box.GetComponent<Image>(), GameUITheme.BgPanel);
 
     _phaseText = CreateText(box.transform, "PhaseText", "...", 22, FontStyles.Bold, new Vector2(0, 175), new Vector2(700, 40));
     _phaseText.color = GameUITheme.Accent;
@@ -377,7 +377,7 @@ public class CombatPresentationUI : MonoBehaviour
     rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
     rt.anchoredPosition = pos;
     rt.sizeDelta = new Vector2(170, 170);
-    go.GetComponent<Image>().color = GameUITheme.BgPanelLight;
+    GameUITheme.ApplyRoundedFrameStyle(go.GetComponent<Image>(), GameUITheme.BgPanelLight);
     return go.GetComponent<Image>();
   }
 
@@ -389,7 +389,7 @@ public class CombatPresentationUI : MonoBehaviour
     rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
     rt.anchoredPosition = pos;
     rt.sizeDelta = new Vector2(150, 200);
-    go.GetComponent<Image>().color = GameUITheme.Border;
+    GameUITheme.ApplyRoundedFrameStyle(go.GetComponent<Image>(), GameUITheme.Border);
     return go.GetComponent<Image>();
   }
 

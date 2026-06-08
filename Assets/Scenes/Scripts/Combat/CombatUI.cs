@@ -46,6 +46,7 @@ public class CombatUI : MonoBehaviour
   private void Awake()
   {
     ResolveReferences();
+    RemoveBossRuleUi();
     EnsureUIStyler();
     EnsurePresentation();
     EnsureHiddenBetButton();
@@ -58,6 +59,8 @@ public class CombatUI : MonoBehaviour
 
     if (FindFirstObjectByType<BossPreviewUI>() == null)
       StartNewCombat();
+    else
+      SetHudPanelsVisible(false);
   }
 
   /// <summary>Starts combat from run flow. Pass null boss for normal fights.</summary>
@@ -260,7 +263,7 @@ public class CombatUI : MonoBehaviour
       yield break;
     }
 
-    string enemyName = _isBossFight && testBoss != null ? testBoss.displayName : GameUIText.Enemy;
+    string enemyName = GetEnemyDisplayName();
     if (_presentation != null)
       yield return _presentation.PlayTurn(theme, result, enemyName);
 
@@ -329,12 +332,12 @@ public class CombatUI : MonoBehaviour
     if (playerHpText != null)
     {
       playerHpText.richText = true;
-      playerHpText.text = GameUITheme.FormatHpRich(s.playerHp, s.playerMaxHp, GameUIText.Player);
+      playerHpText.text = GameUITheme.FormatHpRich(s.playerHp, s.playerMaxHp, "자신");
     }
 
     if (enemyHpText != null)
     {
-      string enemyName = _isBossFight && testBoss != null ? testBoss.displayName : GameUIText.Enemy;
+      string enemyName = GetEnemyDisplayName();
       enemyHpText.richText = true;
       enemyHpText.text = GameUITheme.FormatHpRich(s.enemyHp, s.enemyMaxHp, enemyName.ToUpper());
     }
@@ -344,46 +347,27 @@ public class CombatUI : MonoBehaviour
     RefreshBossRuleDisplay();
   }
 
+  private string GetEnemyDisplayName()
+  {
+    if (_isBossFight)
+    {
+      if (RunManager.Instance != null && RunManager.Instance.State.isActive)
+        return RunManager.Instance.State.currentFloor <= 1 ? "주사위 보스" : "카드보스";
+
+      if (testBoss != null)
+        return testBoss.displayName;
+    }
+
+    if (RunManager.Instance != null && RunManager.Instance.State.isActive)
+      return RunManager.Instance.State.currentFloor <= 1 ? "주사위 쫄병" : "카드 쫄병";
+
+    return GameUIText.Enemy;
+  }
+
   private void RefreshBossRuleDisplay()
   {
-    if (bossRuleText == null)
-      return;
-
-    if (_isBossFight && testBoss != null)
-    {
-      string rule = BossGambleResolvers.GetRuleLabel(testBoss);
-      string pattern = combat.PatternController.GetStatusLabel();
-      string counter = combat.PatternController.GetCounterHint();
-      _bossRuleFullText = string.IsNullOrEmpty(pattern)
-        ? rule
-        : $"{rule}\n{pattern}" + (string.IsNullOrEmpty(counter) ? "" : $"\n{GameUIText.BossTip(counter)}");
-    }
-    else
-      _bossRuleFullText = "";
-
-    bool showToggle = !string.IsNullOrEmpty(_bossRuleFullText);
-    if (bossRuleToggleButton != null)
-      bossRuleToggleButton.gameObject.SetActive(showToggle);
-
-    var rulePanel = FindChildRecursive(transform, "BossRulePanel");
-    if (rulePanel != null)
-      rulePanel.gameObject.SetActive(_bossRuleExpanded && showToggle);
-
-    bossRuleText.gameObject.SetActive(_bossRuleExpanded && showToggle);
-    if (_bossRuleExpanded && showToggle)
-      bossRuleText.text = _bossRuleFullText;
-
-    if (bossRuleToggleButton != null)
-    {
-      var label = bossRuleToggleButton.GetComponentInChildren<TMP_Text>();
-      if (label != null)
-      {
-        label.richText = true;
-        label.text = _bossRuleExpanded
-          ? GameUIText.BossInfoHide
-          : GameUIText.BossInfoShow;
-      }
-    }
+    // User request: remove the translucent navy boss-info UI entirely.
+    RemoveBossRuleUi();
   }
 
   private void SetBossRuleExpanded(bool expanded)
@@ -453,6 +437,30 @@ public class CombatUI : MonoBehaviour
       else
         preview.HidePreview();
     }
+
+    SetHudPanelsVisible(visible);
+  }
+
+  /// <summary>
+  /// Show/hide the in-combat HUD boxes (player/enemy HP panels + green bars, center status box,
+  /// bottom-left combat log box). Hidden on the title screen and other non-combat phases.
+  /// Does not touch the boss preview so it can be shown independently.
+  /// </summary>
+  public void SetHudPanelsVisible(bool visible)
+  {
+    SetHudElementActive("PlayerHpPanel", visible);
+    SetHudElementActive("EnemyHpPanel", visible);
+    SetHudElementActive("StatusPanel", visible);
+    SetHudElementActive("CombatLogPanel", visible);
+    // Restart is moved to ESC pause overlay only.
+    SetHudElementActive("RestartButton", false);
+  }
+
+  private void SetHudElementActive(string objectName, bool active)
+  {
+    var t = FindChildRecursive(transform, objectName);
+    if (t != null)
+      t.gameObject.SetActive(active);
   }
 
   private void RefreshButtons()
@@ -552,8 +560,13 @@ public class CombatUI : MonoBehaviour
     {
       tmp.richText = true;
       tmp.text = label;
-      tmp.fontSize = 14;
       tmp.alignment = TextAlignmentOptions.Center;
+      // Auto-fit the multi-line bet text so it never overflows the button.
+      tmp.textWrappingMode = TextWrappingModes.Normal;
+      tmp.lineSpacing = -6f;
+      tmp.enableAutoSizing = true;
+      tmp.fontSizeMin = 9f;
+      tmp.fontSizeMax = 14f;
     }
   }
 
@@ -589,43 +602,28 @@ public class CombatUI : MonoBehaviour
 
   private void EnsureBossRuleToggle()
   {
-    if (bossRuleToggleButton != null)
-      return;
+    RemoveBossRuleUi();
+  }
 
-    bossRuleToggleButton = FindButton("BossRuleToggleButton");
-    if (bossRuleToggleButton != null)
-    {
-      bossRuleToggleButton.onClick.RemoveListener(OnToggleBossRule);
-      bossRuleToggleButton.onClick.AddListener(OnToggleBossRule);
-      return;
-    }
-
-    var canvas = GetComponent<Canvas>() ?? FindFirstObjectByType<Canvas>();
-    if (canvas == null)
-      return;
-
-    bossRuleToggleButton = GameUITheme.CreateButton(
-      canvas.transform,
-      "BossRuleToggleButton",
-      GameUIText.BossInfoShow,
-      new Vector2(0f, -100f),
-      new Vector2(220f, 32f),
-      GameUITheme.Border,
-      OnToggleBossRule);
-
-    var label = bossRuleToggleButton.GetComponentInChildren<TMP_Text>();
-    if (label != null)
-      label.fontSize = 13;
-
+  private void RemoveBossRuleUi()
+  {
     _bossRuleExpanded = false;
+    _bossRuleFullText = string.Empty;
+
+    var toggle = bossRuleToggleButton != null
+      ? bossRuleToggleButton.transform
+      : FindChildRecursive(transform, "BossRuleToggleButton");
+    if (toggle != null)
+      toggle.gameObject.SetActive(false);
+
+    bossRuleToggleButton = null;
+
     if (bossRuleText != null)
       bossRuleText.gameObject.SetActive(false);
 
     var rulePanel = FindChildRecursive(transform, "BossRulePanel");
     if (rulePanel != null)
       rulePanel.gameObject.SetActive(false);
-
-    CombatUILayout.Apply(canvas.transform);
   }
 
   private static Color HexColor(string hex)
@@ -647,5 +645,6 @@ public class CombatUI : MonoBehaviour
     restartButton.onClick.RemoveListener(OnRestartCombat);
     restartButton.onClick.AddListener(OnRestartCombat);
     restartButton.interactable = true;
+    restartButton.gameObject.SetActive(false);
   }
 }

@@ -16,9 +16,9 @@ public static class CombatUILayout
     LayoutRect(canvasRoot, "EnemyHpText", new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-18f, -52f), new Vector2(280f, 44f));
     LayoutRect(canvasRoot, "EnemyHpPanel", new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-18f, -52f), new Vector2(300f, 52f));
 
-    LayoutRect(canvasRoot, "BossRuleToggleButton", new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -100f), new Vector2(220f, 32f));
-    LayoutRect(canvasRoot, "BossRuleText", new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -148f), new Vector2(620f, 72f));
-    LayoutRect(canvasRoot, "BossRulePanel", new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -148f), new Vector2(640f, 80f));
+    LayoutRect(canvasRoot, "BossRuleToggleButton", new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-18f, 110f), new Vector2(220f, 32f));
+    LayoutRect(canvasRoot, "BossRuleText", new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-18f, 24f), new Vector2(360f, 128f));
+    LayoutRect(canvasRoot, "BossRulePanel", new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-18f, 24f), new Vector2(380f, 136f));
 
     LayoutRect(canvasRoot, "StatusText", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, 100f), new Vector2(700f, 72f));
     LayoutRect(canvasRoot, "StatusPanel", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, 100f), new Vector2(720f, 80f));
@@ -48,7 +48,7 @@ public static class CombatUILayout
     rt.anchorMin = new Vector2(1f, 1f);
     rt.anchorMax = new Vector2(1f, 1f);
     rt.pivot = new Vector2(1f, 1f);
-    rt.anchoredPosition = new Vector2(-16f, -118f);
+    rt.anchoredPosition = new Vector2(-16f, -420f);
     rt.sizeDelta = new Vector2(280f, 120f);
   }
 

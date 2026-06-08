@@ -7,6 +7,9 @@ public static class BossGambleBoardFactory
     BossDefinition boss,
     BossPatternRuntimeState state)
   {
+    // User request: remove boss info mini-board UI from all screens.
+    RemoveAllBoardPanels();
+
     if (combat == null || boss == null || state?.Pattern == null)
       return null;
 
@@ -16,20 +19,17 @@ public static class BossGambleBoardFactory
         Object.Destroy(old.gameObject);
     }
 
-    if (state.Pattern.minigameType == BossMinigameType.None)
-      return null;
+    // Keep pattern logic, but never spawn the visual board panel.
+    return null;
+  }
 
-    var host = new GameObject("BossGambleBoardHost");
-    host.transform.SetParent(combat.transform, false);
-
-    BossGambleBoard board = state.Pattern.minigameType switch
+  private static void RemoveAllBoardPanels()
+  {
+    var panels = Object.FindObjectsByType<RectTransform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+    foreach (var rt in panels)
     {
-      BossMinigameType.DiceFaces => host.AddComponent<DiceTyrantBoard>(),
-      BossMinigameType.CardTable => host.AddComponent<QueenCardBoard>(),
-      _ => null
-    };
-
-    board?.Setup(boss, state);
-    return board;
+      if (rt != null && rt.name == "BossGambleBoardPanel")
+        Object.Destroy(rt.gameObject);
+    }
   }
 }
